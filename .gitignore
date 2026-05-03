@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# CMake / C++ build
+build/
+cmake-build-*/
+*.o
+*.a
+*.out
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+
+# CUDA
+*.ptx
+*.cubin
+*.fatbin
+
+# Model weights / checkpoints (large)
+*.bin
+*.safetensors
+*.pt
+*.pth
+model_weights/
+checkpoints/
+
+# Environment
+.env
+.venv/
+venv/
+env/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs / benchmarks output
+*.log
+benchmark_results/
+profiling/
+
+# Rust (KV allocator is a separate repo, but exclude if accidentally present)
+rust_allocator/target/
