@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package inference;
+
+option py_generic_services = false;
+
+// ── messages ──────────────────────────────────────────────────────────────────
+
+message GenerateRequest {
+  string prompt = 1;
+  SamplingConfig sampling = 2;
+  string request_id = 3;      // optional; server assigns UUID if empty
+}
+
+message SamplingConfig {
+  float temperature   = 1;
+  float top_p         = 2;
+  int32 top_k         = 3;
+  int32 max_tokens    = 4;
+  int32 min_tokens    = 5;
+  float repetition_penalty = 6;
+  repeated string stop_sequences = 7;
+}
+
+message GenerateResponse {
+  string request_id    = 1;
+  string token_text    = 2;   // decoded text of the generated token
+  int32  token_id      = 3;
+  bool   finished      = 4;
+  FinishReason finish_reason = 5;
+  UsageStats usage     = 6;   // populated only when finished == true
+}
+
+enum FinishReason {
+  FINISH_REASON_UNSPECIFIED = 0;
+  FINISH_REASON_STOP        = 1;
+  FINISH_REASON_LENGTH      = 2;
+  FINISH_REASON_ABORTED     = 3;
+}
+
+message UsageStats {
+  int32 prompt_tokens     = 1;
+  int32 completion_tokens = 2;
+  float ttft_ms           = 3;   // time to first token (milliseconds)
+  float e2e_latency_ms    = 4;
+}
+
+message CancelRequest {
+  string request_id = 1;
+}
+
+message CancelResponse {
+  bool success = 1;
+}
+
+message HealthRequest {}
+
+message HealthResponse {
+  bool  healthy          = 1;
+  int32 num_waiting_reqs = 2;
+  int32 num_running_reqs = 3;
+  int32 num_free_blocks  = 4;
+  string engine_version  = 5;
+}
+
+// ── service ───────────────────────────────────────────────────────────────────
+
+service InferenceService {
+  // Server-streaming RPC: sends one GenerateResponse per token.
+  rpc Generate(GenerateRequest) returns (stream GenerateResponse);
+
+  // Cancel an in-progress request.
+  rpc Cancel(CancelRequest) returns (CancelResponse);
+
+  // Liveness / readiness probe.
+  rpc Health(HealthRequest) returns (HealthResponse);
+}
